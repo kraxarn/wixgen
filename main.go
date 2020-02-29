@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -43,6 +44,7 @@ type Product struct {
 	Language		string	`xml:",attr"`
 	Package			Package
 	Media			Media
+	Directory		Directory
 }
 
 func NewProduct(name, version, manufacturer, packageComments string) Product {
@@ -55,6 +57,7 @@ func NewProduct(name, version, manufacturer, packageComments string) Product {
 		Language: 		"1033",
 		Package:		NewPackage(packageComments),
 		Media:			NewMedia(),
+		Directory:		NewRootDirectory(name),
 	}
 }
 
@@ -99,8 +102,8 @@ func NewMedia() Media {
 //region Directory
 
 type Directory struct {
-	Id			string
-	Name		string
+	Id			string	`xml:",attr"`
+	Name		string	`xml:",attr"`
 	Directory	*Directory
 	Component	*Component
 }
@@ -132,8 +135,9 @@ func NewRootDirectory(productName string) Directory {
 //region Component
 
 type Component struct {
-	Id		string
-	Guid	string
+	Id		string	`xml:",attr"`
+	Guid	string	`xml:",attr"`
+	File	[]File
 }
 
 func NewComponent(id string) *Component {
@@ -141,6 +145,15 @@ func NewComponent(id string) *Component {
 	cmp.Id 		= id
 	cmp.Guid	= "*"
 	return cmp
+}
+
+//endregion
+
+//region File
+
+type File struct {
+	Id		string	`xml:",attr"`
+	Source	string	`xml:",attr"`
 }
 
 //endregion
@@ -222,7 +235,25 @@ func main() {
 	}
 	Validate(&args)
 
+	// Prepare root
 	root := NewWixFromArgs(args)
+	component := root.Product.Directory.Directory.Directory.Component
+
+	// Check for all files
+	err := filepath.Walk(args.InputDirectory, func(path string, info os.FileInfo, err error) error {
+		if path == args.InputDirectory || info.IsDir() {
+			return nil
+		}
+		//path = path[len(args.InputDirectory) + 1:]
+		component.File = append(component.File, File{
+			Id:		info.Name(),
+			Source:	path,
+		})
+
+		fmt.Println(path)
+		return nil
+	})
+
 	data, err := xml.MarshalIndent(root, "", "\t")
 	if err != nil {
 		PrintErr(err)
