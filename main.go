@@ -106,7 +106,7 @@ type Directory struct {
 	Id			string	`xml:",attr"`
 	Name		*string	`xml:",attr"`
 	Directory	[]*Directory
-	Component	[]Component
+	Component	[]*Component
 }
 
 func NewDirectory(id string, name string, directory *Directory) *Directory {
