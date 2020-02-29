@@ -284,7 +284,7 @@ func main() {
 		root.Product.Feature.ComponentRef = append(
 			root.Product.Feature.ComponentRef,
 			ComponentRef{
-				Id: fmt.Sprintf("ApplicationFile%v", j),
+				Id: fmt.Sprintf("File%v", j),
 			},
 		)
 	}
