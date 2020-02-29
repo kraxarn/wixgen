@@ -196,6 +196,10 @@ func main() {
 		PrintUsage()
 		os.Exit(2)
 	}
+	// Check so version number looks correct
+	if strings.Count(args.ProductVersion, ".") < 2 {
+		fmt.Fprintf(os.Stderr, "warning: version number should be in format x.y.z")
+	}
 
 	root := NewWixFromArgs(args)
 	data, err := xml.MarshalIndent(root, "", "\t")
