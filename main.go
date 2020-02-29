@@ -57,7 +57,7 @@ func NewProduct(name, version, manufacturer, packageComments string) Product {
 		Language: 		"1033",
 		Package:		NewPackage(packageComments),
 		Media:			NewMedia(),
-		Directory:		NewRootDirectory(name),
+		Directory:		*NewRootDirectory(name),
 	}
 }
 
@@ -103,31 +103,27 @@ func NewMedia() Media {
 
 type Directory struct {
 	Id			string	`xml:",attr"`
-	Name		string	`xml:",attr"`
+	Name		*string	`xml:",attr"`
 	Directory	*Directory
 	Component	*Component
 }
 
-func NewDirectory(id, name string) Directory {
-	return Directory{
-		Id:		id,
-		Name:	name,
+func NewDirectory(id string, name string, directory *Directory, component *Component) *Directory {
+	dir := new(Directory)
+	dir.Id = id
+	if name != "" {
+		dir.Name = &name
 	}
+	dir.Directory 	= directory
+	dir.Component	= component
+	return dir
 }
 
-func NewRootDirectory(productName string) Directory {
-	return Directory{
-		Id:		"TARGETDIR",
-		Name: 	"SourceDir",
-		Directory: &Directory{
-			Id:	"ProgramFilesFolder",
-			Directory: &Directory{
-				Id:			"INSTALLDIR",
-				Name:		productName,
-				Component:	NewComponent("ApplicationFiles"),
-			},
-		},
-	}
+func NewRootDirectory(productName string) *Directory {
+	return NewDirectory("TARGETDIR", "SourceDir",
+		NewDirectory("ProgramFilesFolder", "",
+			NewDirectory("INSTALLDIR", productName, nil,
+				NewComponent("ApplicationFiles")), nil), nil)
 }
 
 //endregion
