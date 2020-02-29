@@ -181,7 +181,7 @@ func main() {
 	missing := args.Validate()
 	if len(missing) > 0 {
 		fmt.Printf(
-			"%vmissing arguments: %v%v\n\n",
+			"%vmissing arguments: %v%v\n",
 			colorRed,
 			strings.Join(missing, ", "),
 			colorReset)
@@ -191,7 +191,7 @@ func main() {
 	// Check if input directory exists
 	stat, err := os.Stat(args.InputDirectory)
 	if os.IsNotExist(err) || !stat.IsDir() {
-		fmt.Printf("%v\"%v\" does not exist or is not a directory%v\n\n",
+		fmt.Printf("%v\"%v\" does not exist or is not a directory%v\n",
 			colorRed, args.InputDirectory, colorReset)
 		PrintUsage()
 		os.Exit(2)
@@ -221,5 +221,5 @@ func PrintUsage() {
 }
 
 func PrintVersion() {
-	fmt.Printf("\nwixgen, wix xml/wxs generator, v1.0\n\n")
+	fmt.Println("wixgen, wix xml/wxs generator, v1.0")
 }
