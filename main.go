@@ -99,8 +99,10 @@ func NewMedia() Media {
 //region Directory
 
 type Directory struct {
-	Id		string
-	Name	string
+	Id			string
+	Name		string
+	Directory	*Directory
+	Component	*Component
 }
 
 func NewDirectory(id, name string) Directory {
@@ -108,6 +110,37 @@ func NewDirectory(id, name string) Directory {
 		Id:		id,
 		Name:	name,
 	}
+}
+
+func NewRootDirectory(productName string) Directory {
+	return Directory{
+		Id:		"TARGETDIR",
+		Name: 	"SourceDir",
+		Directory: &Directory{
+			Id:	"ProgramFilesFolder",
+			Directory: &Directory{
+				Id:			"INSTALLDIR",
+				Name:		productName,
+				Component:	NewComponent("ApplicationFiles"),
+			},
+		},
+	}
+}
+
+//endregion
+
+//region Component
+
+type Component struct {
+	Id		string
+	Guid	string
+}
+
+func NewComponent(id string) *Component {
+	cmp := new(Component)
+	cmp.Id 		= id
+	cmp.Guid	= "*"
+	return cmp
 }
 
 //endregion
