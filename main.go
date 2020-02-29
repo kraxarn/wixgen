@@ -214,7 +214,10 @@ func main() {
 	if args.OutputFile == "" {
 		fmt.Printf(string(data))
 	} else {
-		ioutil.WriteFile(args.OutputFile, data, 0644)
+		err := ioutil.WriteFile(args.OutputFile, data, 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v%v%v", colorRed, err, colorReset)
+		}
 	}
 }
 
