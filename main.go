@@ -154,8 +154,6 @@ const (
 )
 
 func main() {
-	// Print header for no reason
-	PrintVersion()
 	args := Arguments{}
 	for i, arg := range os.Args {
 		// Always print help
@@ -165,6 +163,7 @@ func main() {
 		}
 		// We already printed version information
 		if arg == "--version" {
+			PrintVersion()
 			os.Exit(0)
 		}
 		// Ignore last arg as there's no value
