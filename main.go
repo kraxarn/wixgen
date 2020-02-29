@@ -45,6 +45,7 @@ type Product struct {
 	Package			Package
 	Media			Media
 	Directory		Directory
+	Feature			Feature
 }
 
 func NewProduct(name, version, manufacturer, packageComments string) Product {
@@ -105,25 +106,23 @@ type Directory struct {
 	Id			string	`xml:",attr"`
 	Name		*string	`xml:",attr"`
 	Directory	*Directory
-	Component	*Component
+	Component	[]Component
 }
 
-func NewDirectory(id string, name string, directory *Directory, component *Component) *Directory {
+func NewDirectory(id string, name string, directory *Directory) *Directory {
 	dir := new(Directory)
 	dir.Id = id
 	if name != "" {
 		dir.Name = &name
 	}
-	dir.Directory 	= directory
-	dir.Component	= component
+	dir.Directory = directory
 	return dir
 }
 
 func NewRootDirectory(productName string) *Directory {
 	return NewDirectory("TARGETDIR", "SourceDir",
 		NewDirectory("ProgramFilesFolder", "",
-			NewDirectory("INSTALLDIR", productName, nil,
-				NewComponent("ApplicationFiles")), nil), nil)
+			NewDirectory("INSTALLDIR", productName, nil)))
 }
 
 //endregion
@@ -133,13 +132,14 @@ func NewRootDirectory(productName string) *Directory {
 type Component struct {
 	Id		string	`xml:",attr"`
 	Guid	string	`xml:",attr"`
-	File	[]File
+	File	File
 }
 
-func NewComponent(id string) *Component {
+func NewComponent(id string, file File) *Component {
 	cmp := new(Component)
 	cmp.Id 		= id
 	cmp.Guid	= "*"
+	cmp.File	= file
 	return cmp
 }
 
@@ -150,6 +150,31 @@ func NewComponent(id string) *Component {
 type File struct {
 	Id		string	`xml:",attr"`
 	Source	string	`xml:",attr"`
+}
+
+//endregion
+
+//region ComponentRef
+
+type ComponentRef struct {
+	Id	string	`xml:",attr"`
+}
+
+//endregion
+
+//region Feature
+
+type Feature struct {
+	Id				string	`xml:",attr"`
+	Level			string	`xml:",attr"`
+	ComponentRef	[]ComponentRef
+}
+
+func NewFeature() Feature {
+	return Feature{
+		Id:		"DefaultFeature",
+		Level:	"1",
+	}
 }
 
 //endregion
@@ -233,22 +258,36 @@ func main() {
 
 	// Prepare root
 	root := NewWixFromArgs(args)
-	component := root.Product.Directory.Directory.Directory.Component
+	cmpDir := root.Product.Directory.Directory.Directory
 
 	// Check for all files
+	i := 0
 	err := filepath.Walk(args.InputDirectory, func(path string, info os.FileInfo, err error) error {
 		if path == args.InputDirectory || info.IsDir() {
 			return nil
 		}
 		//path = path[len(args.InputDirectory) + 1:]
-		component.File = append(component.File, File{
-			Id:		info.Name(),
-			Source:	path,
-		})
-
-		fmt.Println(path)
+		cmpDir.Component = append(cmpDir.Component,
+			*NewComponent(fmt.Sprintf("ApplicationFile%v", i), File{
+				Id:		info.Name(),
+				Source:	path,
+			}),
+		)
+		i++
+		fmt.Println(i, path)
 		return nil
 	})
+
+	// Create needed references
+	root.Product.Feature = NewFeature()
+	for j := 0; j < i; j++ {
+		root.Product.Feature.ComponentRef = append(
+			root.Product.Feature.ComponentRef,
+			ComponentRef{
+				Id: fmt.Sprintf("ApplicationFile%v", j),
+			},
+		)
+	}
 
 	data, err := xml.MarshalIndent(root, "", "\t")
 	if err != nil {
