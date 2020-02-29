@@ -162,11 +162,6 @@ type ComponentRef struct {
 	Id	string	`xml:",attr"`
 }
 
-type DirectoryRef struct {
-	Id			string	`xml:",attr"`
-	Directory	[]Directory
-}
-
 //endregion
 
 //region Feature
@@ -175,7 +170,6 @@ type Feature struct {
 	Id				string	`xml:",attr"`
 	Level			string	`xml:",attr"`
 	ComponentRef	[]ComponentRef
-	DirectoryRef	[]DirectoryRef
 }
 
 func NewFeature() Feature {
@@ -311,14 +305,6 @@ func main() {
 			root.Product.Feature.ComponentRef,
 			ComponentRef{
 				Id: fmt.Sprintf("File%v", j),
-			},
-		)
-	}
-	for j := 0; j < di; j++ {
-		root.Product.Feature.DirectoryRef = append(
-			root.Product.Feature.DirectoryRef,
-			DirectoryRef{
-				Id: fmt.Sprintf("Dir%v", j),
 			},
 		)
 	}
