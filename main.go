@@ -187,24 +187,7 @@ func main() {
 		case "--out":			args.OutputFile				= os.Args[i + 1]
 		}
 	}
-	// Validate
-	missing := args.Validate()
-	if len(missing) > 0 {
-		PrintErr(fmt.Sprintf("missing arguments: %v", strings.Join(missing, ", ")))
-		PrintUsage()
-		os.Exit(1)
-	}
-	// Check if input directory exists
-	stat, err := os.Stat(args.InputDirectory)
-	if os.IsNotExist(err) || !stat.IsDir() {
-		PrintErr(fmt.Sprintf("\"%v\" does not exist or is not a directory", args.InputDirectory))
-		PrintUsage()
-		os.Exit(2)
-	}
-	// Check so version number looks correct
-	if strings.Count(args.ProductVersion, ".") < 2 {
-		PrintErr("warning: version number should be in format x.y.z")
-	}
+	Validate(&args)
 
 	root := NewWixFromArgs(args)
 	data, err := xml.MarshalIndent(root, "", "\t")
@@ -236,4 +219,25 @@ func PrintUsage() {
 
 func PrintVersion() {
 	fmt.Println("wixgen, wix xml/wxs generator, v1.0")
+}
+
+func Validate(args *Arguments) {
+	// Validate
+	missing := args.Validate()
+	if len(missing) > 0 {
+		PrintErr(fmt.Sprintf("missing arguments: %v", strings.Join(missing, ", ")))
+		PrintUsage()
+		os.Exit(1)
+	}
+	// Check if input directory exists
+	stat, err := os.Stat(args.InputDirectory)
+	if os.IsNotExist(err) || !stat.IsDir() {
+		PrintErr(fmt.Sprintf("\"%v\" does not exist or is not a directory", args.InputDirectory))
+		PrintUsage()
+		os.Exit(2)
+	}
+	// Check so version number looks correct
+	if strings.Count(args.ProductVersion, ".") < 2 {
+		PrintErr("warning: version number should be in format x.y.z")
+	}
 }
