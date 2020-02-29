@@ -105,7 +105,7 @@ func NewMedia() Media {
 type Directory struct {
 	Id			string	`xml:",attr"`
 	Name		*string	`xml:",attr"`
-	Directory	*Directory
+	Directory	[]*Directory
 	Component	[]Component
 }
 
@@ -115,7 +115,9 @@ func NewDirectory(id string, name string, directory *Directory) *Directory {
 	if name != "" {
 		dir.Name = &name
 	}
-	dir.Directory = directory
+	if directory != nil {
+		dir.Directory = []*Directory{directory}
+	}
 	return dir
 }
 
@@ -160,6 +162,11 @@ type ComponentRef struct {
 	Id	string	`xml:",attr"`
 }
 
+type DirectoryRef struct {
+	Id			string	`xml:",attr"`
+	Directory	[]Directory
+}
+
 //endregion
 
 //region Feature
@@ -168,6 +175,7 @@ type Feature struct {
 	Id				string	`xml:",attr"`
 	Level			string	`xml:",attr"`
 	ComponentRef	[]ComponentRef
+	DirectoryRef	[]DirectoryRef
 }
 
 func NewFeature() Feature {
@@ -258,23 +266,41 @@ func main() {
 
 	// Prepare root
 	root := NewWixFromArgs(args)
-	cmpDir := root.Product.Directory.Directory.Directory
+	cmpDir := &root.Product.Directory.Directory[0].Directory
 
 	// Check for all files
 	i := 0
+	di := 0
 	err := filepath.Walk(args.InputDirectory, func(path string, info os.FileInfo, err error) error {
-		if path == args.InputDirectory || info.IsDir() {
+		if path == args.InputDirectory {
 			return nil
 		}
-		//path = path[len(args.InputDirectory) + 1:]
-		cmpDir.Component = append(cmpDir.Component,
-			*NewComponent(fmt.Sprintf("ApplicationFile%v", i), File{
+		if info.IsDir() {
+			//fmt.Println("dir>", info.Name())
+			*cmpDir = append(*cmpDir,
+				NewDirectory(fmt.Sprintf("Dir%v", di), info.Name(), nil))
+		}
+
+		filePath := path[len(args.InputDirectory) + 1:]
+		full := strings.Split(filePath, "/")
+		ci := 0
+		if len(full) > 1 {
+			for i, subDir := range *cmpDir {
+				if *subDir.Name == full[0] {
+					ci = i
+					break
+				}
+			}
+		}
+
+		(*cmpDir)[ci].Component = append((*cmpDir)[ci].Component,
+			*NewComponent(fmt.Sprintf("File%v", i), File{
 				Id:		info.Name(),
 				Source:	path,
 			}),
 		)
+		fmt.Printf("%02d: %v\n", i, filePath)
 		i++
-		fmt.Println(i, path)
 		return nil
 	})
 
@@ -285,6 +311,14 @@ func main() {
 			root.Product.Feature.ComponentRef,
 			ComponentRef{
 				Id: fmt.Sprintf("File%v", j),
+			},
+		)
+	}
+	for j := 0; j < di; j++ {
+		root.Product.Feature.DirectoryRef = append(
+			root.Product.Feature.DirectoryRef,
+			DirectoryRef{
+				Id: fmt.Sprintf("Dir%v", j),
 			},
 		)
 	}
