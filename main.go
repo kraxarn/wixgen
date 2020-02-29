@@ -209,7 +209,13 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	ioutil.WriteFile("out.xml", data, 0644)
+
+	// See how we should output
+	if args.OutputFile == "" {
+		fmt.Printf(string(data))
+	} else {
+		ioutil.WriteFile(args.OutputFile, data, 0644)
+	}
 }
 
 func PrintUsage() {
