@@ -1,5 +1,8 @@
 # Generate .wxs file from a folder of files for use in .msi installer
 
+## Install
+`go get -v github.com/kraxarn/wixgen`
+
 ## Usage
 | Argument | Description | Required |
 | -------- | ----------- | -------- |
