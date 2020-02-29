@@ -260,7 +260,7 @@ func main() {
 
 	// Prepare root
 	root := NewWixFromArgs(args)
-	cmpDir := &root.Product.Directory.Directory[0].Directory
+	installDir := root.Product.Directory.Directory[0].Directory[0]
 
 	// Check for all files
 	i := 0
@@ -270,30 +270,37 @@ func main() {
 			return nil
 		}
 		if info.IsDir() {
-			//fmt.Println("dir>", info.Name())
-			*cmpDir = append(*cmpDir,
+			installDir.Directory = append(
+				installDir.Directory,
 				NewDirectory(fmt.Sprintf("Dir%v", di), info.Name(), nil))
+			di++
+			return nil
 		}
 
 		filePath := path[len(args.InputDirectory) + 1:]
 		full := strings.Split(filePath, "/")
-		ci := 0
+		//ci := 0
 		if len(full) > 1 {
-			for i, subDir := range *cmpDir {
+			for _, subDir := range installDir.Directory {
 				if *subDir.Name == full[0] {
-					ci = i
-					break
+					subDir.Component = append(
+						subDir.Component,
+						NewComponent(fmt.Sprintf("File%v", i), File{
+							Id:		info.Name(),
+							Source:	path,
+						}))
+					i++
+					return nil
 				}
 			}
 		}
 
-		(*cmpDir)[ci].Component = append((*cmpDir)[ci].Component,
-			*NewComponent(fmt.Sprintf("File%v", i), File{
+		installDir.Component = append(installDir.Component,
+			NewComponent(fmt.Sprintf("File%v", i), File{
 				Id:		info.Name(),
 				Source:	path,
 			}),
 		)
-		fmt.Printf("%02d: %v\n", i, filePath)
 		i++
 		return nil
 	})
