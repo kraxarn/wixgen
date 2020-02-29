@@ -153,6 +153,13 @@ const (
 	colorRed	= "\033[0;31;49m"
 )
 
+func PrintErr(message interface{}) {
+	msg := fmt.Sprintf("%v%v%v\n", colorRed, message, colorReset)
+	if _, err := fmt.Fprint(os.Stderr, msg); err != nil {
+		fmt.Print(msg)
+	}
+}
+
 func main() {
 	args := Arguments{}
 	for i, arg := range os.Args {
@@ -183,31 +190,26 @@ func main() {
 	// Validate
 	missing := args.Validate()
 	if len(missing) > 0 {
-		fmt.Printf(
-			"%vmissing arguments: %v%v\n",
-			colorRed,
-			strings.Join(missing, ", "),
-			colorReset)
+		PrintErr(fmt.Sprintf("missing arguments: %v", strings.Join(missing, ", ")))
 		PrintUsage()
 		os.Exit(1)
 	}
 	// Check if input directory exists
 	stat, err := os.Stat(args.InputDirectory)
 	if os.IsNotExist(err) || !stat.IsDir() {
-		fmt.Printf("%v\"%v\" does not exist or is not a directory%v\n",
-			colorRed, args.InputDirectory, colorReset)
+		PrintErr(fmt.Sprintf("\"%v\" does not exist or is not a directory", args.InputDirectory))
 		PrintUsage()
 		os.Exit(2)
 	}
 	// Check so version number looks correct
 	if strings.Count(args.ProductVersion, ".") < 2 {
-		fmt.Fprintf(os.Stderr, "warning: version number should be in format x.y.z")
+		PrintErr("warning: version number should be in format x.y.z")
 	}
 
 	root := NewWixFromArgs(args)
 	data, err := xml.MarshalIndent(root, "", "\t")
 	if err != nil {
-		fmt.Println(err)
+		PrintErr(err)
 	}
 
 	// See how we should output
@@ -216,7 +218,7 @@ func main() {
 	} else {
 		err := ioutil.WriteFile(args.OutputFile, data, 0644)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v%v%v", colorRed, err, colorReset)
+			PrintErr(err)
 		}
 	}
 }
