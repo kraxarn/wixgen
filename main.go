@@ -156,7 +156,7 @@ func PrintUsage() {
 }
 
 func PrintVersion() {
-	fmt.Println("wixgen, wix xml/wxs generator, v1.0")
+	fmt.Println("wixgen, wix xml/wxs generator")
 }
 
 func GetGuid(data []byte) string {
