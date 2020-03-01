@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -188,6 +189,7 @@ type Arguments struct {
 	PackageComments		string
 	InputDirectory		string
 	OutputFile			string
+	ExecName			string
 }
 
 func (args *Arguments) Validate() []string {
@@ -212,6 +214,10 @@ func (args *Arguments) Validate() []string {
 	// Input directory is required
 	if args.InputDirectory == "" {
 		missing = append(missing, "--dir")
+	}
+	// Executable name is required
+	if args.ExecName == "" {
+		missing = append(missing, "--exec")
 	}
 	// Output file is option, but we leave it empty as default
 	return missing
@@ -254,6 +260,7 @@ func main() {
 		case "--comments":		args.PackageComments		= os.Args[i + 1]
 		case "--dir":			args.InputDirectory			= os.Args[i + 1]
 		case "--out":			args.OutputFile				= os.Args[i + 1]
+		case "--exec":			args.ExecName				= os.Args[i + 1]
 		}
 	}
 	Validate(&args)
@@ -334,12 +341,13 @@ func main() {
 
 func PrintUsage() {
 	fmt.Printf(
-		"%v\n%v\n%v\n%v\n%v\n\n%v\n",
+		"%v\n%v\n%v\n%v\n%v\n%v\n%v\n",
 		"--name\t\tProduct name, required",
 		"--version\tProduct version, must be x.y.z, optional, default 1.0.0",
 		"--manufacturer\tProduct manufacturer, required",
 		"--comments\tPackage comments, optional, default \"[name] installer\"",
 		"--dir\t\tDirectory with files to bundle, required",
+		"--exec\t\tMain executable in directory, required",
 		"--out\t\tOutput file name, optional, default stdout")
 }
 
@@ -365,5 +373,13 @@ func Validate(args *Arguments) {
 	// Check so version number looks correct
 	if strings.Count(args.ProductVersion, ".") < 2 {
 		PrintErr("warning: version number should be in format x.y.z")
+	}
+	// Check so main executable exists
+	execPath := path.Join(args.InputDirectory, args.ExecName)
+	stat, err = os.Stat(execPath)
+	if os.IsNotExist(err) || stat.IsDir() {
+		PrintErr(fmt.Sprintf("\"%v\" does not exist", execPath))
+		PrintUsage()
+		os.Exit(2)
 	}
 }
