@@ -382,7 +382,15 @@ func main() {
 	menuSub.Component[0].RemoveFolder = NewRemoveFolder()
 	root.Product.Directory.Directory = append(
 		root.Product.Directory.Directory,
-		NewDirectory("ProgramFilesFolder", "", menuSub))
+		NewDirectory("ProgramMenuFolder", "", menuSub))
+
+	// Create component ref
+	root.Product.Feature.ComponentRef = append(
+			root.Product.Feature.ComponentRef,
+			ComponentRef{
+				Id: "ApplicationShortcuts",
+			},
+		)
 
 	data, err := xml.MarshalIndent(root, "", "\t")
 	if err != nil {
