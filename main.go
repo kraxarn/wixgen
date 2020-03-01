@@ -133,9 +133,11 @@ func NewRootDirectory(productName string) *Directory {
 //region Component
 
 type Component struct {
-	Id		string	`xml:",attr"`
-	Guid	string	`xml:",attr"`
-	File	*File
+	Id				string	`xml:",attr"`
+	Guid			string	`xml:",attr"`
+	File			*File
+	Shortcut		*Shortcut
+	RemoveFolder	*RemoveFolder
 }
 
 func NewComponent(id string, file *File) *Component {
@@ -185,6 +187,44 @@ func NewFeature() Feature {
 		Id:		"DefaultFeature",
 		Level:	"1",
 	}
+}
+
+//endregion
+
+//region Shortcut
+
+type Shortcut struct {
+	Id					string	`xml:",attr"`
+	Name				string	`xml:",attr"`
+	Description			string	`xml:",attr"`
+	Target				string	`xml:",attr"`
+	WorkingDirectory	string	`xml:",attr"`
+}
+
+func NewShortcut(name, execName string) *Shortcut {
+	cut := new(Shortcut)
+	cut.Id					= "ApplicationShortcut"
+	cut.Name				= name
+	cut.Description			= name
+	cut.Target				= fmt.Sprintf("[INSTALLDIR]%v", execName)
+	cut.WorkingDirectory	= "INSTALLDIR"
+	return cut
+}
+
+//endregion
+
+//region RemoveFolder
+
+type RemoveFolder struct {
+	Id	string	`xml:",attr"`
+	On	string	`xml:",attr"`
+}
+
+func NewRemoveFolder() *RemoveFolder {
+	rm := new(RemoveFolder)
+	rm.Id	= "ProgramMenuSubfolder"
+	rm.On	= "uninstall"
+	return rm
 }
 
 //endregion
@@ -331,6 +371,15 @@ func main() {
 			},
 		)
 	}
+
+	// Create start menu directory
+	menuSub := NewDirectory("ProgramMenuSubfolder", args.ProductName, nil)
+	menuSub.Component = append(menuSub.Component, NewComponent("ApplicationShortcuts", nil))
+	menuSub.Component[0].Shortcut = NewShortcut(args.ProductName, args.ExecName)
+	menuSub.Component[0].RemoveFolder = NewRemoveFolder()
+	root.Product.Directory.Directory = append(
+		root.Product.Directory.Directory,
+		NewDirectory("ProgramFilesFolder", "", menuSub))
 
 	data, err := xml.MarshalIndent(root, "", "\t")
 	if err != nil {
