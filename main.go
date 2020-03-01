@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/md5"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -374,7 +375,9 @@ func main() {
 
 	// Create start menu directory
 	menuSub := NewDirectory("ProgramMenuSubfolder", args.ProductName, nil)
-	menuSub.Component = append(menuSub.Component, NewComponent("ApplicationShortcuts", nil))
+	menuComp := NewComponent("ApplicationShortcuts", nil)
+	menuComp.Guid = GetGuid([]byte(args.ExecName))
+	menuSub.Component = append(menuSub.Component, menuComp)
 	menuSub.Component[0].Shortcut = NewShortcut(args.ProductName, args.ExecName)
 	menuSub.Component[0].RemoveFolder = NewRemoveFolder()
 	root.Product.Directory.Directory = append(
@@ -439,4 +442,12 @@ func Validate(args *Arguments) {
 		PrintUsage()
 		os.Exit(2)
 	}
+}
+
+func GetGuid(data []byte) string {
+	// [4]-[2]-[2]-[2]-[6]	=> 16 (32)
+	dataHash := md5.Sum(data)
+	return fmt.Sprintf("%x-%x-%x-%x-%x",
+		string(dataHash[0:4]), string(dataHash[4:6]), string(dataHash[6:8]),
+		string(dataHash[8:10]), string(dataHash[10:16]))
 }
