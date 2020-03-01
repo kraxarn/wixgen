@@ -131,6 +131,9 @@ func main() {
 	// Create icon
 	if args.Icon != "" {
 		root.Product.Icon = NewIcon(args.Icon)
+		root.Product.Property = append(
+			root.Product.Property,
+			NewProperty("ARPPRODUCTICON", "ProductIcon"))
 	}
 
 	// Disable repair/modify options

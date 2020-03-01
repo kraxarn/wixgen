@@ -42,6 +42,7 @@ type Product struct {
 	Upgrade			*Upgrade
 	Condition		*Condition
 	Icon			*Icon
+	Property		[]Property
 }
 
 func NewProduct(name, version, manufacturer, packageComments string) Product {
@@ -303,6 +304,22 @@ func NewIcon(file string) *Icon {
 	ic.Id			= "ProductIcon"
 	ic.SourceFile	= file
 	return ic
+}
+
+//endregion
+
+//region Property
+
+type Property struct {
+	Id		string	`xml:",attr"`
+	Value	string	`xml:",attr"`
+}
+
+func NewProperty(key, value string) Property {
+	return Property{
+		Id:		key,
+		Value:	value,
+	}
 }
 
 //endregion
