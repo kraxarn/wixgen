@@ -135,10 +135,10 @@ func NewRootDirectory(productName string) *Directory {
 type Component struct {
 	Id		string	`xml:",attr"`
 	Guid	string	`xml:",attr"`
-	File	File
+	File	*File
 }
 
-func NewComponent(id string, file File) *Component {
+func NewComponent(id string, file *File) *Component {
 	cmp := new(Component)
 	cmp.Id 		= id
 	cmp.Guid	= "*"
@@ -153,6 +153,13 @@ func NewComponent(id string, file File) *Component {
 type File struct {
 	Id		string	`xml:",attr"`
 	Source	string	`xml:",attr"`
+}
+
+func NewFile(id, source string) *File {
+	file := new(File)
+	file.Id		= id
+	file.Source	= source
+	return file
 }
 
 //endregion
@@ -293,10 +300,9 @@ func main() {
 				if *subDir.Name == full[0] {
 					subDir.Component = append(
 						subDir.Component,
-						NewComponent(fmt.Sprintf("File%v", i), File{
-							Id:		info.Name(),
-							Source:	path,
-						}))
+						NewComponent(
+							fmt.Sprintf("File%v", i),
+							NewFile(info.Name(), path)))
 					i++
 					return nil
 				}
@@ -304,11 +310,9 @@ func main() {
 		}
 
 		installDir.Component = append(installDir.Component,
-			NewComponent(fmt.Sprintf("File%v", i), File{
-				Id:		info.Name(),
-				Source:	path,
-			}),
-		)
+			NewComponent(
+				fmt.Sprintf("File%v", i),
+				NewFile(info.Name(), path)))
 		i++
 		return nil
 	})
