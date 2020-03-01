@@ -128,6 +128,14 @@ func main() {
 			},
 		)
 
+	// Disable repair/modify options
+	root.Product.Property = append(
+			root.Product.Property,
+			NewProperty("ARPNOREPAIR", "1"))
+	root.Product.Property = append(
+			root.Product.Property,
+			NewProperty("ARPNOMODIFY", "1"))
+
 	data, err := xml.MarshalIndent(root, "", "\t")
 	if err != nil {
 		PrintErr(err)
