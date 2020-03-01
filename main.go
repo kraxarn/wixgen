@@ -128,6 +128,11 @@ func main() {
 			},
 		)
 
+	// Create icon
+	if args.Icon != "" {
+		root.Product.Icon = NewIcon(args.Icon)
+	}
+
 	// Disable repair/modify options
 	root.Product.Property = append(
 			root.Product.Property,

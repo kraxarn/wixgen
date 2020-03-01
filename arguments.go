@@ -79,4 +79,13 @@ func Validate(args *Arguments) {
 		PrintUsage()
 		os.Exit(2)
 	}
+	// Check so icon exists if set
+	if args.Icon != "" {
+		stat, err = os.Stat(args.Icon)
+		if os.IsNotExist(err) || stat.IsDir() {
+			PrintErr(fmt.Sprintf("\"%v\" does not exist", args.ExecPath()))
+			PrintUsage()
+			os.Exit(2)
+		}
+	}
 }

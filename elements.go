@@ -41,6 +41,7 @@ type Product struct {
 	Feature			Feature
 	Upgrade			*Upgrade
 	Condition		*Condition
+	Icon			*Icon
 }
 
 func NewProduct(name, version, manufacturer, packageComments string) Product {
@@ -286,6 +287,22 @@ func NewCondition() *Condition {
 	cond.Condition	= "NOT NEWERVERSIONDETECTED"
 	cond.Message	= "Product is already installed"
 	return cond
+}
+
+//endregion
+
+//region Icon
+
+type Icon struct {
+	Id			string	`xml:",attr"`
+	SourceFile	string	`xml:",attr"`
+}
+
+func NewIcon(file string) *Icon {
+	ic := new(Icon)
+	ic.Id			= "ProductIcon"
+	ic.SourceFile	= file
+	return ic
 }
 
 //endregion
