@@ -240,6 +240,7 @@ func main() {
 	for i, arg := range os.Args {
 		// Always print help
 		if arg == "--help" || arg == "-?" {
+			PrintVersion()
 			PrintUsage()
 			os.Exit(0)
 		}
