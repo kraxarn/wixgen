@@ -12,6 +12,7 @@
 | --comments | Package comments | No, defaults to "[name] installer" |
 | --dir | Directory with files to bundle | Yes |
 | --exec | Executable path relative to input directory | Yes |
+| --icon | Icon for uninstall in control panel | No, defaults to no icon |
 | --out | Outfile file name | No, defaults to stdout |
 
 More proper documentation should come soon, as well as example usages
