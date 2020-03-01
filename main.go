@@ -169,7 +169,7 @@ func PrintUsage() {
 		"--comments\tPackage comments, optional, default \"[name] installer\"",
 		"--dir\t\tDirectory with files to bundle, required",
 		"--exec\t\tMain executable in directory, required",
-		"--icon\t\tIcon for start menu, optional, default no icon",
+		"--icon\t\tIcon for control panel, optional, default no icon",
 		"--out\t\tOutput file name, optional, default stdout")
 }
 
