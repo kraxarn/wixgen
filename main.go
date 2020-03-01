@@ -447,7 +447,9 @@ func Validate(args *Arguments) {
 func GetGuid(data []byte) string {
 	// [4]-[2]-[2]-[2]-[6]	=> 16 (32)
 	dataHash := md5.Sum(data)
-	return fmt.Sprintf("%x-%x-%x-%x-%x",
-		string(dataHash[0:4]), string(dataHash[4:6]), string(dataHash[6:8]),
-		string(dataHash[8:10]), string(dataHash[10:16]))
+	return fmt.Sprintf("%02d%02d%02d%02d-%x-%x-%02d%02d-%x",
+		dataHash[0] % 100, dataHash[1] % 100, dataHash[2] % 100, dataHash[3] % 100,
+		string(dataHash[4:6]), string(dataHash[6:8]),
+		dataHash[8] % 100, dataHash[9] % 100,
+		string(dataHash[10:16]))
 }
