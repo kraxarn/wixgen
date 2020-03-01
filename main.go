@@ -49,6 +49,7 @@ func main() {
 		case "--dir":			args.InputDirectory			= os.Args[i + 1]
 		case "--out":			args.OutputFile				= os.Args[i + 1]
 		case "--exec":			args.ExecName				= os.Args[i + 1]
+		case "--icon":			args.Icon					= os.Args[i + 1]
 		}
 	}
 	Validate(&args)
@@ -145,13 +146,14 @@ func main() {
 
 func PrintUsage() {
 	fmt.Printf(
-		"%v\n%v\n%v\n%v\n%v\n%v\n%v\n",
+		"%v\n%v\n%v\n%v\n%v\n%v\n%v\n%v\n",
 		"--name\t\tProduct name, required",
 		"--version\tProduct version, must be x.y.z, optional, default 1.0.0",
 		"--manufacturer\tProduct manufacturer, required",
 		"--comments\tPackage comments, optional, default \"[name] installer\"",
 		"--dir\t\tDirectory with files to bundle, required",
 		"--exec\t\tMain executable in directory, required",
+		"--icon\t\tIcon for start menu, optional, default no icon",
 		"--out\t\tOutput file name, optional, default stdout")
 }
 

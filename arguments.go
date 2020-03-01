@@ -15,6 +15,7 @@ type Arguments struct {
 	InputDirectory		string
 	OutputFile			string
 	ExecName			string
+	Icon				string
 }
 
 func (args *Arguments) Missing() []string {
