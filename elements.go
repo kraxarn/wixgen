@@ -39,6 +39,7 @@ type Product struct {
 	Media			Media
 	Directory		Directory
 	Feature			Feature
+	Upgrade			*Upgrade
 }
 
 func NewProduct(name, version, manufacturer, packageComments string) Product {
@@ -53,6 +54,7 @@ func NewProduct(name, version, manufacturer, packageComments string) Product {
 		Package:		NewPackage(packageComments),
 		Media:			NewMedia(),
 		Directory:		*NewRootDirectory(name),
+		Upgrade:		NewUpgrade(name, version),
 	}
 }
 
@@ -218,6 +220,54 @@ func NewRemoveFolder() *RemoveFolder {
 	rm.Id	= "ProgramMenuSubfolder"
 	rm.On	= "uninstall"
 	return rm
+}
+
+//endregion
+
+//region Upgrade
+
+type Upgrade struct {
+	// Id needs to be the same as Product.UpgradeCode
+	Id				string	`xml:",attr"`
+	UpgradeVersion	[]UpgradeVersion
+}
+
+func NewUpgrade(productName, productVersion string) *Upgrade {
+	up := new(Upgrade)
+	up.Id 				= GetGuid([]byte(productName))
+	up.UpgradeVersion	= GenerateUpgradeVersions(productVersion)
+	return up
+}
+
+//endregion
+
+//region UpgradeVersion
+
+type UpgradeVersion struct {
+	Minimum			string		`xml:",attr"`
+	// Optional string arguments
+	Maximum			interface{}	`xml:",attr"`
+	IncludeMinimum	interface{}	`xml:",attr"`
+	IncludeMaximum	interface{}	`xml:",attr"`
+	OnlyDetect		interface{}	`xml:",attr"`
+	Property		string		`xml:",attr"`
+}
+
+func GenerateUpgradeVersions(version string) []UpgradeVersion {
+	return []UpgradeVersion{
+		{
+			Minimum:		version,
+			OnlyDetect:		"yes",
+			Property:		"NEWERVERSIONDETECTED",
+		},
+		{
+			Minimum:	"0.0.0",
+			Maximum:	version,
+			IncludeMinimum:	"yes",
+			IncludeMaximum:	"no",
+			Property:		"OLDVERSIONBEINGUPGRADED",
+		},
+	}
 }
 
 //endregion
