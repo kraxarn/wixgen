@@ -230,6 +230,10 @@ func (args *Arguments) Validate() []string {
 	return missing
 }
 
+func (args *Arguments) ExecPath() string {
+	return path.Join(args.InputDirectory, args.ExecName)
+}
+
 const (
 	colorReset	= "\033[0;39;49m"
 	colorRed	= "\033[0;31;49m"
@@ -380,10 +384,9 @@ func Validate(args *Arguments) {
 		PrintErr("warning: version number should be in format x.y.z")
 	}
 	// Check so main executable exists
-	execPath := path.Join(args.InputDirectory, args.ExecName)
-	stat, err = os.Stat(execPath)
+	stat, err = os.Stat(args.ExecPath())
 	if os.IsNotExist(err) || stat.IsDir() {
-		PrintErr(fmt.Sprintf("\"%v\" does not exist", execPath))
+		PrintErr(fmt.Sprintf("\"%v\" does not exist", args.ExecPath()))
 		PrintUsage()
 		os.Exit(2)
 	}
