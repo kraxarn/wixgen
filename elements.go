@@ -40,6 +40,7 @@ type Product struct {
 	Directory		Directory
 	Feature			Feature
 	Upgrade			*Upgrade
+	Condition		*Condition
 }
 
 func NewProduct(name, version, manufacturer, packageComments string) Product {
@@ -55,6 +56,7 @@ func NewProduct(name, version, manufacturer, packageComments string) Product {
 		Media:			NewMedia(),
 		Directory:		*NewRootDirectory(name),
 		Upgrade:		NewUpgrade(name, version),
+		Condition:		NewCondition(),
 	}
 }
 
@@ -272,3 +274,18 @@ func GenerateUpgradeVersions(version string) []UpgradeVersion {
 
 //endregion
 
+//region Condition
+
+type Condition struct {
+	Condition	string	`xml:",chardata"`
+	Message		string	`xml:",attr"`
+}
+
+func NewCondition() *Condition {
+	cond := new(Condition)
+	cond.Condition	= "NOT NEWERVERSIONDETECTED"
+	cond.Message	= "Product is already installed"
+	return cond
+}
+
+//endregion
