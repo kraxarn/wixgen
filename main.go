@@ -31,11 +31,6 @@ func main() {
 			PrintUsage()
 			os.Exit(0)
 		}
-		// We already printed version information
-		if arg == "--version" {
-			PrintVersion()
-			os.Exit(0)
-		}
 		// Ignore last arg as there's no value
 		if i >= len(os.Args) - 1 {
 			break
